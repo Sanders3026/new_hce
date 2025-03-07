@@ -8,7 +8,7 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 import { radioOutline, checkmarkDoneCircleOutline } from "ionicons/icons";
 import { useNfc } from '../functions/MyFunctions';
 import Echo from "../myplugins/plugin"
-
+import sigma from '@/functions/TEST';
 const Home: React.FC = () => {
   const ret = async () =>{
     const result = await Echo.sigmaReturn({ value: "hello world" });
@@ -26,7 +26,7 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding" style={{ backgroundColor: 'var(--ion-background-color)' }}>
-        <IonButton expand="block" onClick={startEmulation}>
+        <IonButton expand="block" onClick={sigma}>
           Start Emulation
         </IonButton>
         <IonButton expand="block" onClick={ret}>

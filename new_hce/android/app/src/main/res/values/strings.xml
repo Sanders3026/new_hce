@@ -4,4 +4,6 @@
     <string name="title_activity_main">new_hce</string>
     <string name="package_name">io.ionic.starter</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="service_description">HCE Payment Service</string>
+    <string name="aid_group_description">Virtual Payment Card</string>
 </resources>

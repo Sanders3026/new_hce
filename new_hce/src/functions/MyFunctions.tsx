@@ -1,12 +1,10 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from '@capacitor/core';
-
 interface HcePlugin {
   startNfcHce: (options: { content: string; persistMessage: boolean; mimeType: string }) => Promise<void>;
   stopNfcHce: () => Promise<void>;
   addListener: (event: string, callback: (status: any) => void) => { remove: () => void };
 }
-
 let hcePlugin: any
 
 interface NfcContextType {
@@ -30,22 +28,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const [scanCompleted, setScanCompleted] = useState(false);
   const [pluginLoaded, setPluginLoaded] = useState(false);
 
-  useEffect(() => {
-    if (Capacitor.getPlatform() === 'android') {
-      import('capacitor-hce-plugin')
-        .then((plugin) => {
-          hcePlugin = plugin;
-          setPluginLoaded(true);
-        })
-        .catch((error) => {
-          console.error('Failed to load capacitor-hce-plugin:', error);
-          alert('NFC plugin is not available. Please ensure the plugin is installed correctly.');
-        });
-    } else {
-      setPluginLoaded(true); // Allow non-Android platforms to proceed
-    }
-  }, []);
-
+ 
   const change = (e: CustomEvent<{ value: string }>) => {
     const newValue = e.detail.value || "";
     setDatas(newValue);
