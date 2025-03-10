@@ -1,11 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from '@capacitor/core';
-interface HcePlugin {
-  startNfcHce: (options: { content: string; persistMessage: boolean; mimeType: string }) => Promise<void>;
-  stopNfcHce: () => Promise<void>;
-  addListener: (event: string, callback: (status: any) => void) => { remove: () => void };
-}
-let hcePlugin: any
+import { HCECapacitorPlugin } from "capacitor-hce-plugin";  // Ensure the plugin is correctly imported
 
 interface NfcContextType {
   datas: string;
@@ -13,7 +8,7 @@ interface NfcContextType {
   showToast: boolean;
   started: boolean;
   scanCompleted: boolean;
-  change: (e: CustomEvent<{ value: string }>) => void;
+  change: (e: CustomEvent) => void;
   startEmulation: () => Promise<void>;
   stopEmulation: () => Promise<void>;
 }
@@ -28,8 +23,18 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const [scanCompleted, setScanCompleted] = useState(false);
   const [pluginLoaded, setPluginLoaded] = useState(false);
 
- 
-  const change = (e: CustomEvent<{ value: string }>) => {
+  // Detect if the plugin is ready (on Android)
+  useEffect(() => {
+    if (Capacitor.getPlatform() === "android") {
+      if (HCECapacitorPlugin) {
+        setPluginLoaded(true); 
+      } else {
+        console.error("HCE plugin not available!");
+      }
+    }
+  }, []);
+
+  const change = (e:CustomEvent) => {
     const newValue = e.detail.value || "";
     setDatas(newValue);
     datasRef.current = newValue;
@@ -41,10 +46,10 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (Capacitor.getPlatform() === 'android' && hcePlugin) {
+    if (Capacitor.getPlatform() === 'android') {
       if (datasRef.current) {
         try {
-          await hcePlugin.startNfcHce({
+          await HCECapacitorPlugin.startNfcHce({
             content: datasRef.current,
             persistMessage: false,
             mimeType: "text/plain",
@@ -63,9 +68,9 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const stopEmulation = async () => {
-    if (Capacitor.getPlatform() === 'android' && hcePlugin) {
+    if (Capacitor.getPlatform() === 'android') {
       try {
-        await hcePlugin.stopNfcHce();
+        await HCECapacitorPlugin.stopNfcHce();
         setStarted(false);
       } catch (error) {
         console.error("Error stopping NFC emulation:", error);
@@ -77,8 +82,9 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const scanCompletedRef = useRef(false);
 
   useEffect(() => {
-    if (Capacitor.getPlatform() === 'android' && pluginLoaded && hcePlugin) {
-      const listener = hcePlugin.addListener("onStatusChanged", (status: any) => {
+    if (Capacitor.getPlatform() === 'android' && pluginLoaded) {
+      // Set up event listener for NFC status
+      const listener = HCECapacitorPlugin.addListener("onStatusChanged", (status: any) => {
         console.log("NFC Status:", status.eventName);
 
         if (status.eventName === "card-emulator-started") {

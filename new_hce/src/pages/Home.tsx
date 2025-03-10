@@ -2,22 +2,18 @@ import React from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButton, IonItem, IonInput, IonText, IonLabel,
-  IonIcon, IonCard
+  IonIcon, IonCard,IonProgressBar
 } from '@ionic/react';
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { radioOutline, checkmarkDoneCircleOutline } from "ionicons/icons";
+import { BottomSheet } from "react-spring-bottom-sheet";
+import "react-spring-bottom-sheet/dist/style.css";
+import { documentOutline } from 'ionicons/icons';
 import { useNfc } from '../functions/MyFunctions';
-import Echo from "../myplugins/plugin"
-import sigma from '@/functions/TEST';
+import { Button } from "@/components/ui/button"
+import '../css/style.css'; 
+
 const Home: React.FC = () => {
-  const ret = async () =>{
-    const result = await Echo.sigmaReturn({ value: "hello world" });
-    alert(result.value);
-    
-  }
-
-  const { datas, startEmulation, stopEmulation, change, started, scanCompleted } = useNfc();
-
+const { datas, startEmulation, stopEmulation, change, started, scanCompleted } = useNfc();
   return (
     <IonPage>
       <IonHeader>
@@ -25,19 +21,19 @@ const Home: React.FC = () => {
           <IonTitle>HCE Demo</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent className="ion-padding" style={{ backgroundColor: 'var(--ion-background-color)' }}>
-        <IonButton expand="block" onClick={sigma}>
+        <IonButton expand="block" onClick={startEmulation} aria-label="Start NFC Emulation">
           Start Emulation
         </IonButton>
-        <IonButton expand="block" onClick={ret}>
+        <IonButton expand="block" onClick={stopEmulation} aria-label="Stop NFC Emulation">
           Stop Emulation
         </IonButton>
         <IonItem>
           <IonInput
             labelPlacement="floating"
             value={datas}
-            onIonChange={(e) => change(e as CustomEvent<{ value: string }>)}
-          >
+            onIonChange={change}>
             <div slot="label">
               Enter NFC Message <IonText color="danger">(Required)</IonText>
             </div>
@@ -45,79 +41,126 @@ const Home: React.FC = () => {
         </IonItem>
       </IonContent>
 
-      {/* Sheet Component */}
-      <Sheet open={started || scanCompleted} onOpenChange={(open) => !open && stopEmulation()}>
-        <SheetContent 
-          side="bottom"
-          className="w-full max-w-[400px] mx-auto rounded-t-xl"
+      <BottomSheet 
+    open={started} 
+    onDismiss={stopEmulation}
+  >
+    <div className="ion-padding-horizontal" style={{ paddingBottom: '2rem' }}>
+      <div className="ion-text-center" style={{ margin: '1.5rem 0' }}>
+        <IonIcon
+          icon={scanCompleted ? checkmarkDoneCircleOutline : radioOutline}
+          color={scanCompleted ? "success" : "primary"}
           style={{
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            left: '50%',
-            height: 'min(60vh, 500px)',
-            backgroundColor: 'var(--ion-background-color)',
-            pointerEvents: 'none',
+            fontSize: "64px",
+            transition: 'all 0.3s ease',
+            transform: scanCompleted ? 'scale(1.1)' : 'scale(1)',
+            filter: started && !scanCompleted ? 'drop-shadow(0 0 8px var(--ion-color-primary))' : 'none'
+          }}
+        />
+      </div>
+
+      <div className="ion-text-center" style={{ marginBottom: '2rem' }}>
+        <IonText color={scanCompleted ? "success" : "medium"}>
+          <h1 style={{ 
+            fontSize: '1.5rem',
+            fontWeight: 600,
+            margin: '0.5rem 0'
+          }}>
+            {scanCompleted ? 'Data Transmitted!' : started ? 'Ready to Scan' : 'Session Ended'}
+          </h1>
+        </IonText>
+        <IonText color="medium">
+          <p style={{ 
+            fontSize: '0.9rem',
+            margin: '0.5rem 0',
+            lineHeight: '1.4'
+          }}>
+            {scanCompleted 
+              ? 'The data was successfully received by the scanner device'
+              : started 
+              ? 'Hold your device near an NFC reader to transmit data'
+              : 'NFC emulation has been stopped'}
+          </p>
+        </IonText>
+      </div>
+
+      {/* Progress Indicator */}
+      {started && !scanCompleted && (
+        <div style={{ 
+          margin: '1.5rem 0',
+          padding: '0 1rem'
+        }}>
+          <IonProgressBar 
+            type="indeterminate" 
+            color="primary"
+            style={{
+              height: '4px',
+              borderRadius: '2px'
+            }}
+          />
+        </div>
+      )}
+
+      {scanCompleted && (
+        <IonCard 
+          style={{ 
+            borderRadius: '12px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+            margin: '1.5rem 0'
           }}
         >
-          <div style={{ pointerEvents: 'auto' }}>
-            <SheetHeader className="ion-text-center ion-padding">
-              <div className="ion-margin-vertical">
-                <IonIcon
-                  icon={scanCompleted ? checkmarkDoneCircleOutline : radioOutline}
-                  color={scanCompleted ? "success" : "primary"}
+          <IonItem lines="none" style={{ '--background': 'var(--ion-color-light)' }}>
+            <IonLabel className="ion-text-wrap">
+              <IonText color="medium">
+                <h3 style={{ 
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  marginBottom: '0.5rem'
+                }}>
+                  Transmitted Payload
+                </h3>
+              </IonText>
+              <div 
+                style={{ 
+                  backgroundColor: 'var(--ion-color-light-shade)',
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  wordBreak: 'break-all',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.4',
+                  position: 'relative'
+                }}
+              >
+                {datas || 'No data recorded'}
+                <IonButton 
+                  fill="clear"
+                  size="small"
                   style={{
-                    fontSize: "48px",
-                    animation: started && !scanCompleted ? "spin 1s linear infinite" : "none"
+                    position: 'absolute',
+                    right: '8px',
+                    top: '8px',
+                    '--padding-start': '4px',
+                    '--padding-end': '4px'
                   }}
-                />
-              </div>
-              <SheetTitle className="ion-text-wrap">
-                {scanCompleted ? 'Scan Successful!' : started ? 'NFC Emulation Active' : 'NFC Status'}
-              </SheetTitle>
-
-              <SheetDescription className="ion-margin-top">
-                {scanCompleted ? (
-                  <IonText color="success">
-                    Data successfully transmitted!
-                  </IonText>
-                ) : started ? (
-                  <IonText color="medium">
-                    Waiting for NFC scanner...
-                  </IonText>
-                ) : (
-                  <IonText color="medium">
-                    Start emulation to begin scanning
-                  </IonText>
-                )}
-              </SheetDescription>
-            </SheetHeader>
-
-            {scanCompleted && (
-              <IonCard className="ion-margin">
-                <IonItem lines="none">
-                  <IonLabel className="ion-text-wrap">
-                    <h2>Transmitted Data</h2>
-                    <p style={{ wordBreak: 'break-all' }}>{datas || 'No data recorded'}</p>
-                  </IonLabel>
-                </IonItem>
-              </IonCard>
-            )}
-
-            <SheetFooter className="ion-padding">
-              <SheetClose className="ion-full-width">
-                <IonButton
-                  expand="block"
-                  fill={scanCompleted ? "outline" : "solid"}
-                  color={scanCompleted ? "success" : "primary"}
-                  onClick={stopEmulation}
+                  onClick={() => navigator.clipboard.writeText(datas)}
                 >
-                  {scanCompleted ? 'Close' : 'Cancel'}
+                  <IonIcon 
+                    icon={documentOutline} 
+                    color="medium" 
+                    style={{ fontSize: '18px' }}
+                  />
                 </IonButton>
-              </SheetClose>
-            </SheetFooter>
-          </div>
-        </SheetContent>
-      </Sheet>
+              </div>
+            </IonLabel>
+          </IonItem>
+        </IonCard>
+      )}
+
+      {/* stop session button */}
+      <Button onClick={stopEmulation} variant={"outline"} className='my-custom-button outline'>Stop Session</Button>
+     
+    </div>
+  </BottomSheet>
     </IonPage>
   );
 };

@@ -6,4 +6,6 @@
     <string name="custom_url_scheme">io.ionic.starter</string>
     <string name="service_description">HCE Payment Service</string>
     <string name="aid_group_description">Virtual Payment Card</string>
+    <string name="servicedesc">servicedesc</string>
+    <string name="aiddescription">aiddescription</string>
 </resources>

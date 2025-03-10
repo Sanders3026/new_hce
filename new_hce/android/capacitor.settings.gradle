@@ -14,5 +14,5 @@ project(':capacitor-keyboard').projectDir = new File('../node_modules/@capacitor
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
 
-include ':sandijs-hce-nfc'
-project(':sandijs-hce-nfc').projectDir = new File('../../../plugin/sandijs-hce-nfc/android')
+include ':capacitor-hce-plugin'
+project(':capacitor-hce-plugin').projectDir = new File('../../../capacitor-hce-plugin/android')
