@@ -11,9 +11,20 @@ import { documentOutline } from 'ionicons/icons';
 import { useNfc } from '../functions/MyFunctions';
 import { Button } from "@/components/ui/button"
 import '../css/style.css'; 
+import testfunc from '@/functions/TEST';
+import { Capacitor } from "@capacitor/core";
 
 const Home: React.FC = () => {
 const { datas, startEmulation, stopEmulation, change, started, scanCompleted } = useNfc();
+const GetOS = ()=>{
+  const MyOs = Capacitor.getPlatform();
+  if (MyOs === 'android') {
+    return startEmulation();
+  }
+  else if (MyOs === 'ios') {
+    return testfunc
+  }
+}
   return (
     <IonPage>
       <IonHeader>
@@ -23,7 +34,7 @@ const { datas, startEmulation, stopEmulation, change, started, scanCompleted } =
       </IonHeader>
 
       <IonContent className="ion-padding" style={{ backgroundColor: 'var(--ion-background-color)' }}>
-        <IonButton expand="block" onClick={startEmulation} aria-label="Start NFC Emulation">
+        <IonButton expand="block" onClick={GetOS} aria-label="Start NFC Emulation">
           Start Emulation
         </IonButton>
         <IonButton expand="block" onClick={stopEmulation} aria-label="Stop NFC Emulation">
