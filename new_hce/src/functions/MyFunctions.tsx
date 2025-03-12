@@ -51,10 +51,10 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
       // For iOS, use the testfunc (assuming it's defined in ./TEST)
       if (datasRef.current) {
         try {
-          testfunc();
-          setStarted(true);
+          testfunc(datasRef.current);
         } catch (error) {
           console.error("Error starting NFC emulation on iOS:", error);
+          console.log(error);
           alert(`Failed to start NFC emulation on iOS: ${error}`);
         }
       } else {
@@ -100,7 +100,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (Capacitor.getPlatform() === "android" && pluginLoaded) {
+    if (Capacitor.getPlatform() === "android") {
       const listener = HCECapacitorPlugin.addListener("onStatusChanged", (status: any) => {
         console.log("NFC Status:", status.eventName);
 
@@ -122,7 +122,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         listener.remove();
       };
     }
-  }, [pluginLoaded]);
+  }, );
 
   return (
     <NfcContext.Provider

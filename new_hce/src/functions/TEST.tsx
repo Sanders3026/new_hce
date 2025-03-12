@@ -1,10 +1,8 @@
 import Echo from "@/myplugins/plugin";
-import { useNfc } from '../functions/MyFunctions';
 
 
-const testfunc = ()=> {
-    const { datas } = useNfc();
-    Echo.sigmaReturn({Data:datas});
+const testfunc = (value:string)=> {
+    Echo.sigmaReturn({Data:value});
 }
 
 export default testfunc;
