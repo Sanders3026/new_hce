@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
-import testfunc from "./TEST"; // Assuming testfunc is the function for iOS
+import testfunc from "./TEST";
 
 interface NfcContextType {
   datas: string;
