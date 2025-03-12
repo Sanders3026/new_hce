@@ -34,7 +34,7 @@ const GetOS = ()=>{
       </IonHeader>
 
       <IonContent className="ion-padding" style={{ backgroundColor: 'var(--ion-background-color)' }}>
-        <IonButton expand="block" onClick={GetOS} aria-label="Start NFC Emulation">
+        <IonButton expand="block" onClick={startEmulation} aria-label="Start NFC Emulation">
           Start Emulation
         </IonButton>
         <IonButton expand="block" onClick={stopEmulation} aria-label="Stop NFC Emulation">
