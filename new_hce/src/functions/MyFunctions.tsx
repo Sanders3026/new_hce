@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
-import testfunc from "./TEST";
+import testfunc from "./TEST"; // Assuming testfunc is the function for iOS
+
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
@@ -11,6 +12,7 @@ interface NfcContextType {
   startEmulation: () => Promise<void>;
   stopEmulation: () => Promise<void>;
 }
+
 const NfcContext = createContext<NfcContextType | undefined>(undefined);
 
 export const NfcProvider = ({ children }: { children: ReactNode }) => {
@@ -46,26 +48,38 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const startEmulation = async () => {
-    if (Capacitor.getPlatform() !== "android") {
-      alert("NFC emulation is only supported on Android.");
-      return;
-    }
-
-
-    if (datasRef.current) {
-      try {
-        await HCECapacitorPlugin.current.startNfcHce({
-          content: datasRef.current,
-          persistMessage: false,
-          mimeType: "text/plain",
-        });
-        setStarted(true);
-      } catch (error) {
-        console.error("Error starting NFC emulation:", error);
-        alert(`Failed to start NFC emulation: ${error}`);
+    if (Capacitor.getPlatform() === "ios") {
+      // For iOS, use the testfunc (assuming it's defined in ./TEST)
+      if (datasRef.current) {
+        try {
+          testfunc;
+          setStarted(true);
+        } catch (error) {
+          console.error("Error starting NFC emulation on iOS:", error);
+          alert(`Failed to start NFC emulation on iOS: ${error}`);
+        }
+      } else {
+        alert("Please enter data to emulate.");
+      }
+    } else if (Capacitor.getPlatform() === "android") {
+      // For Android, use the startNfcHce
+      if (datasRef.current) {
+        try {
+          await HCECapacitorPlugin.current.startNfcHce({
+            content: datasRef.current,
+            persistMessage: false,
+            mimeType: "text/plain",
+          });
+          setStarted(true);
+        } catch (error) {
+          console.error("Error starting NFC emulation on Android:", error);
+          alert(`Failed to start NFC emulation on Android: ${error}`);
+        }
+      } else {
+        alert("Please enter data to emulate.");
       }
     } else {
-      alert("Please enter data to emulate.");
+      alert("NFC emulation is only supported on iOS and Android.");
     }
   };
 
