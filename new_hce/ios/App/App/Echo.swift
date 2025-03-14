@@ -1,72 +1,125 @@
-
 import Foundation
 import Capacitor
 import CoreNFC
 
 @objc(EchoBack) // Name of the class for bridging with Ionic
 public class EchoBack: CAPPlugin {
-    
+
     @available(iOS 17.4, *)
     @objc func sigmaReturn(_ call: CAPPluginCall) {
-        /// A place-holder function for APDU processing. In a real app,
-        /// process the received data and return a response as Data.
-        
-        let stringData = call.getString("Data") ?? "No message provided"
-        print("Received string data from Ionic: \(stringData)")
-        let utf8Data = Data(stringData.utf8)
-        
-        // APDU Processing function
-        let ProcessAPDU: (_: Data) -> Data = { capdu in
+        let stringData = call.getString("Data") ?? "Hello from iOS HCE!"
+        let utf8Data = Data(stringData.utf8) // Ensure UTF-8 encoding
+
+        // Calculate the actual payload length (text content + language code length + 1 for status byte)
+        let payloadLength = utf8Data.count + 3 // 3 = language code (2) + status byte (1)
+
+        // Format the NDEF message according to the NFC Forum Type 2 specification
+        let ndefMessage: [UInt8] = [
+            0xD1,                               // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=1
+            0x01,                               // Record Type Length (1 byte for 'T')
+            UInt8(payloadLength),               // Payload Length
+            0x54,                               // 'T' (Text Record Type)
+            0x02,                               // Status byte (UTF-8, 2-byte language code)
+            0x65, 0x6E                          // 'en' language code
+        ] + [UInt8](utf8Data)                   // The actual text content
+
+        // Calculate total NDEF message length
+        let ndefMessageLength = UInt16(ndefMessage.count)
+        let ndefFile: [UInt8] = [
+            UInt8((ndefMessageLength >> 8) & 0xFF), // High byte of length
+            UInt8(ndefMessageLength & 0xFF)         // Low byte of length
+        ] + ndefMessage
+
+        var selectedFile: UInt16? = nil // Keep track of the selected file
+
+        // APDU Processing Function
+        let processAPDU: (_: Data) -> Data = { capdu in
             print("Processing APDU:", capdu.map { String(format: "%02X", $0) }.joined())
 
-            // AID selection command (SELECT AID)
-            if capdu.starts(with: [0x00, 0xA4, 0x04, 0x00]) {
-                print("AID selected, responding with FCI and 9000")
-                return Data([0x6F, 0x10, 0x84, 0x08] + [0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01, 0x00] + [0x90, 0x00])
+            // SELECT AID
+            if capdu == Data([0x00, 0xA4, 0x04, 0x00, 0x07, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01, 0x00]) {
+                print("AID selected")
+                return Data([0x90, 0x00]) // Success
             }
 
-            // Read Binary command - return an NDEF message
-            if capdu.starts(with: [0x00, 0xB0, 0x00, 0x00]) {
-                print("Reading NDEF message...")
-
-                let ndefMessage: [UInt8] = [
-                    0xD1, 0x01, 0x0B,  // NDEF header: Well-known, short record
-                    0x54,              // Type: 'T' (Text record)
-                    0x02,              // Length of language code
-                    0x65, 0x6E,        // Language code: "en"
-                ] + utf8Data.map { UInt8($0) } + [0x90, 0x00] // Add the UTF-8 encoded string and success status
-                
-                return Data(ndefMessage)
+            // SELECT CC
+            if capdu == Data([0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x03]) {
+                selectedFile = 0xE102
+                print("CC file selected")
+                return Data([0x90, 0x00]) // Success
             }
 
-            // Default response if APDU is unknown
-            return Data([0x6A, 0x82]) // File not found error
+            // READ CC
+            if capdu == Data([0x00, 0xB0, 0x00, 0x00, 0x0F]) {
+                print("Reading CC file")
+                return Data([
+                    0x00, 0x0F,             // CCLEN: Length of this capability container
+                    0x20,                   // Mapping Version 2.0
+                    0x00, 0x3B,            // MLe: Maximum data size that can be read using a single ReadBinary command
+                    0x00, 0x34,            // MLc: Maximum data size that can be sent using a single UpdateBinary command
+                    0x04, 0x06,            // T, L for NDEF File Control TLV
+                    0xE1, 0x04,            // File Identifier
+                    0x04, 0x00,            // Maximum NDEF file size = 1024 bytes
+                    0x00,                  // Read access without any security
+                    0x00,                  // Write access without any security
+                    0x90, 0x00            // Success
+                ])
+            }
+
+            // SELECT NDEF
+            if capdu == Data([0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x04]) {
+                selectedFile = 0xE103
+                print("NDEF file selected")
+                return Data([0x90, 0x00]) // Success
+            }
+
+            // READ NLEN
+            if capdu == Data([0x00, 0xB0, 0x00, 0x00, 0x02]) {
+                print("Reading NDEF length")
+                return Data(ndefFile[0..<2]) + Data([0x90, 0x00])
+            }
+
+            // READ BINARY
+            if capdu.starts(with: [0x00, 0xB0]) {
+                guard selectedFile == 0xE103 else {
+                    print("Error: No valid file selected before reading")
+                    return Data([0x6A, 0x82]) // File not selected
+                }
+
+                let offset = (Int(capdu[2]) << 8) | Int(capdu[3])
+                let lengthRequested = capdu.count > 4 ? Int(capdu[4]) : 0
+
+                if lengthRequested == 0 {
+                    return Data([0x90, 0x00])
+                }
+
+                if offset >= ndefFile.count {
+                    return Data([0x6A, 0x82])
+                }
+
+                let endIndex = min(offset + lengthRequested, ndefFile.count)
+                let slice = ndefFile[offset..<endIndex]
+                print("Returning NDEF data: \(slice.map { String(format: "%02X", $0) }.joined())")
+                return Data(slice) + Data([0x90, 0x00])
+            }
+
+            print("Unknown command")
+            return Data([0x6A, 0x82])
         }
-        
         Task {
-            guard NFCReaderSession.readingAvailable,
-                  CardSession.isSupported,
-                  await CardSession.isEligible else {
-                print("NFC is not available or not eligible for use.")
+            guard NFCReaderSession.readingAvailable else {
+                print("NFC is not available.")
                 return
             }
-            
-            // Hold a presentment intent assertion reference to prevent the
-            // default contactless app from launching. In a real app, monitor
-            // presentmentIntent.isValid to ensure the assertion remains active.
-            var presentmentIntent: NFCPresentmentIntentAssertion?
-            
             let cardSession: CardSession
             do {
-                presentmentIntent = try await NFCPresentmentIntentAssertion.acquire()
                 cardSession = try await CardSession()
                 print("Card session acquired.")
             } catch {
                 print("Failed to acquire NFC presentment intent assertion or card session: \(error)")
                 return
             }
-            
-            // Check if emulation is not already in progress and start it
+            // Start NFC Emulation if not already in progress
             do {
                 if await cardSession.isEmulationInProgress == false {
                     cardSession.alertMessage = String(localized: "Hold Device Near Reader")
@@ -76,31 +129,26 @@ public class EchoBack: CAPPlugin {
             } catch {
                 print("Error starting emulation: \(error)")
             }
-            
             // Listen for NFC events
             for try await event in cardSession.eventStream {
                 switch event {
                 case .sessionStarted:
                     print("Session started.")
                     break
-                
                 case .readerDetected:
                     print("Reader detected.")
                     break
-                
                 case .readerDeselected:
-                    print("Reader deselected. Stopping emulation.")
                     await cardSession.stopEmulation(status: .success)
+                    cardSession.invalidate()
+                    print("Reader deselected. Stopping emulation.")
                     break
-                
                 case .received(let cardAPDU):
                     print("Received APDU: \(cardAPDU.payload.hexEncodedString())")
-                    
                     do {
                         // Generate the response for the received APDU
-                        let responseAPDU = ProcessAPDU(cardAPDU.payload)
+                        let responseAPDU = processAPDU(cardAPDU.payload)
                         print("Generated response APDU: \(responseAPDU.hexEncodedString())")
-                        
                         // Ensure the response is not empty before sending
                         if !responseAPDU.isEmpty {
                             try await cardAPDU.respond(response: responseAPDU)
@@ -112,23 +160,16 @@ public class EchoBack: CAPPlugin {
                         print("Error responding to APDU: \(error)")
                     }
                     break
-                    
-                case .sessionInvalidated(reason: _):
-                    // The NFC session ended
+                case .sessionInvalidated(let reason):
                     print("Session invalidated.")
-                    // Perform cleanup or reset UI here
                     break
                 }
             }
-            
-            // Release presentment intent assertion
-            presentmentIntent = nil
         }
     }
 }
-
 extension Data {
     func hexEncodedString() -> String {
-        return self.map { String(format: "%02hhx", $0) }.joined()
+        return self.map { String(format: "%02X", $0) }.joined()
     }
 }
