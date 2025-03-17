@@ -1,9 +1,9 @@
 import { registerPlugin } from '@capacitor/core';
 
 export interface EchoPlugin {
-  sigmaReturn(options: { Data: string }): Promise<{ Data: string }>;
+  IosEmulator(options: { Data: string }): Promise<{ Data: string }>;
 }
 
-const Echo = registerPlugin<EchoPlugin>('EchoBack');
+const Echo = registerPlugin<EchoPlugin>('IosEmulator');
 
  export default Echo;

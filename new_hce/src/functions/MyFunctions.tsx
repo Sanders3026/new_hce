@@ -116,7 +116,6 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         }
         if (status.eventName === "scan-completed") {
           setScanCompleted(true);
-          setScanError(false);
           setTimeout(() => setScanCompleted(false), 3000);
         }
         if (status.eventName === "scan-error") {

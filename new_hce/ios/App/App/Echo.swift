@@ -2,11 +2,11 @@ import Foundation
 import Capacitor
 import CoreNFC
 
-@objc(EchoBack) 
+@objc(IosEmulator) 
 public class EchoBack: CAPPlugin {
 
     @available(iOS 17.4, *)
-    @objc func sigmaReturn(_ call: CAPPluginCall) {
+    @objc func IosEmulator(_ call: CAPPluginCall) {
         let stringData = call.getString("Data") ?? "Error Reading Data"
         let utf8Data = Data(stringData.utf8) // Ensure UTF-8 encoding
         let payloadLength = utf8Data.count + 3

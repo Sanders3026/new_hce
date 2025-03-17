@@ -1,8 +1,8 @@
 import Echo from "@/myplugins/plugin";
 
 
-const testfunc = (value:string)=> {
-    Echo.sigmaReturn({Data:value});
+const StartIosEmulation = (value:string)=> {
+    Echo.IosEmulator({Data:value});
 }
 
-export default testfunc;
+export default StartIosEmulation;

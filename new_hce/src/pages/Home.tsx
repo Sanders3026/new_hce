@@ -11,8 +11,8 @@ import { documentOutline } from 'ionicons/icons';
 import { useNfc } from '../functions/MyFunctions';
 import { Button } from "@/components/ui/button"
 import '../css/style.css'; 
-import testfunc from '@/functions/TEST';
-import { Capacitor } from "@capacitor/core";
+
+
 
 const Home: React.FC = () => {
 const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
@@ -22,17 +22,10 @@ const simulateError = () => {
     detail: { eventName: 'scan-error' }
   });
   document.dispatchEvent(event);
+  console.log("PRINTED")
 };
 
-const GetOS = ()=>{
-  const MyOs = Capacitor.getPlatform();
-  if (MyOs === 'android') {
-    return startEmulation();
-  }
-  else if (MyOs === 'ios') {
-    return testfunc
-  }
-}
+
   return (
     <IonPage>
       <IonHeader>
