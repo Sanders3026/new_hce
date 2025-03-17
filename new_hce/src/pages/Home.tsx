@@ -37,9 +37,6 @@ const GetOS = ()=>{
         <IonButton expand="block" onClick={startEmulation} aria-label="Start NFC Emulation">
           Start Emulation
         </IonButton>
-        <IonButton expand="block" onClick={stopEmulation} aria-label="Stop NFC Emulation">
-          Stop Emulation
-        </IonButton>
         <IonItem>
           <IonInput
             labelPlacement="floating"

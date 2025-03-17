@@ -7,7 +7,7 @@ public class EchoBack: CAPPlugin {
 
     @available(iOS 17.4, *)
     @objc func sigmaReturn(_ call: CAPPluginCall) {
-        let stringData = call.getString("Data") ?? "Hello from iOS HCE!"
+        let stringData = call.getString("Data") ?? "Error Reading Data"
         let utf8Data = Data(stringData.utf8) // Ensure UTF-8 encoding
         let payloadLength = utf8Data.count + 3
         let ndefMessage: [UInt8] = [
@@ -26,7 +26,7 @@ public class EchoBack: CAPPlugin {
         ] + ndefMessage
 
         var selectedFile: UInt16? = nil
-        var hasCompletedNdefRead = false 
+        var hasCompletedNdefRead = false
 
         // APDU Processing Function
         let processAPDU: (_: Data) -> (Data, Bool) = { capdu in
