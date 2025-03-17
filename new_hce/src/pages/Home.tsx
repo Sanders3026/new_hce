@@ -16,6 +16,14 @@ import { Capacitor } from "@capacitor/core";
 
 const Home: React.FC = () => {
 const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
+
+const simulateError = () => {
+  const event = new CustomEvent('onStatusChanged', {
+    detail: { eventName: 'scan-error' }
+  });
+  document.dispatchEvent(event);
+};
+
 const GetOS = ()=>{
   const MyOs = Capacitor.getPlatform();
   if (MyOs === 'android') {
@@ -165,6 +173,15 @@ const GetOS = ()=>{
           </IonItem>
         </IonCard>
       )}
+
+      {/* Test Error Button */}
+      <Button 
+        onClick={simulateError} 
+        variant="destructive" 
+        className='my-custom-button mb-4'
+      >
+        Simulate Error
+      </Button>
 
       {/* stop session button */}
       <Button onClick={stopEmulation} variant={"outline"} className='my-custom-button outline'>Stop Session</Button>
