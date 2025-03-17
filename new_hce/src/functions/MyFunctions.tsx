@@ -8,6 +8,7 @@ interface NfcContextType {
   showToast: boolean;
   started: boolean;
   scanCompleted: boolean;
+  scanError: boolean;
   change: (e: CustomEvent) => void;
   startEmulation: () => Promise<void>;
   stopEmulation: () => Promise<void>;
@@ -21,6 +22,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const [started, setStarted] = useState(false);
   const datasRef = useRef<string>("");
   const [scanCompleted, setScanCompleted] = useState(false);
+  const [scanError, setScanError] = useState(false);
   const [pluginLoaded, setPluginLoaded] = useState(false);
 
   useEffect(() => {
@@ -114,7 +116,13 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         }
         if (status.eventName === "scan-completed") {
           setScanCompleted(true);
+          setScanError(false);
           setTimeout(() => setScanCompleted(false), 3000);
+        }
+        if (status.eventName === "scan-error") {
+          setScanError(true);
+          setScanCompleted(false);
+          setTimeout(() => setScanError(false), 3000);
         }
       });
 
@@ -130,11 +138,12 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         datas,
         setDatas,
         showToast,
+        started,
+        scanCompleted,
+        scanError,
         change,
         startEmulation,
         stopEmulation,
-        started,
-        scanCompleted,
       }}
     >
       {children}

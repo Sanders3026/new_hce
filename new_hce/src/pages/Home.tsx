@@ -4,7 +4,7 @@ import {
   IonButton, IonItem, IonInput, IonText, IonLabel,
   IonIcon, IonCard,IonProgressBar
 } from '@ionic/react';
-import { radioOutline, checkmarkDoneCircleOutline } from "ionicons/icons";
+import { radioOutline, checkmarkDoneCircleOutline, alertCircleOutline } from "ionicons/icons";
 import { BottomSheet } from "react-spring-bottom-sheet";
 import "react-spring-bottom-sheet/dist/style.css";
 import { documentOutline } from 'ionicons/icons';
@@ -15,7 +15,7 @@ import testfunc from '@/functions/TEST';
 import { Capacitor } from "@capacitor/core";
 
 const Home: React.FC = () => {
-const { datas, startEmulation, stopEmulation, change, started, scanCompleted } = useNfc();
+const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
 const GetOS = ()=>{
   const MyOs = Capacitor.getPlatform();
   if (MyOs === 'android') {
@@ -56,25 +56,25 @@ const GetOS = ()=>{
     <div className="ion-padding-horizontal" style={{ paddingBottom: '2rem' }}>
       <div className="ion-text-center" style={{ margin: '1.5rem 0' }}>
         <IonIcon
-          icon={scanCompleted ? checkmarkDoneCircleOutline : radioOutline}
-          color={scanCompleted ? "success" : "primary"}
+          icon={scanError ? alertCircleOutline : scanCompleted ? checkmarkDoneCircleOutline : radioOutline}
+          color={scanError ? "danger" : scanCompleted ? "success" : "primary"}
           style={{
             fontSize: "64px",
             transition: 'all 0.3s ease',
-            transform: scanCompleted ? 'scale(1.1)' : 'scale(1)',
-            filter: started && !scanCompleted ? 'drop-shadow(0 0 8px var(--ion-color-primary))' : 'none'
+            transform: (scanCompleted || scanError) ? 'scale(1.1)' : 'scale(1)',
+            filter: started && !scanCompleted && !scanError ? 'drop-shadow(0 0 8px var(--ion-color-primary))' : 'none'
           }}
         />
       </div>
 
       <div className="ion-text-center" style={{ marginBottom: '2rem' }}>
-        <IonText color={scanCompleted ? "success" : "medium"}>
+        <IonText color={scanError ? "danger" : scanCompleted ? "success" : "medium"}>
           <h1 style={{ 
             fontSize: '1.5rem',
             fontWeight: 600,
             margin: '0.5rem 0'
           }}>
-            {scanCompleted ? 'Data Transmitted!' : started ? 'Ready to Scan' : 'Session Ended'}
+            {scanError ? 'Scan Error!' : scanCompleted ? 'Data Transmitted!' : started ? 'Ready to Scan' : 'Session Ended'}
           </h1>
         </IonText>
         <IonText color="medium">
@@ -83,7 +83,9 @@ const GetOS = ()=>{
             margin: '0.5rem 0',
             lineHeight: '1.4'
           }}>
-            {scanCompleted 
+            {scanError 
+              ? 'There was an error during the NFC scan. Please try again.'
+              : scanCompleted 
               ? 'The data was successfully received by the scanner device'
               : started 
               ? 'Hold your device near an NFC reader to transmit data'
@@ -93,7 +95,7 @@ const GetOS = ()=>{
       </div>
 
       {/* Progress Indicator */}
-      {started && !scanCompleted && (
+      {started && !scanCompleted && !scanError && (
         <div style={{ 
           margin: '1.5rem 0',
           padding: '0 1rem'
