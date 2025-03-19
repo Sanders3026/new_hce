@@ -28,6 +28,7 @@
     "@tailwindcss/vite": "^4.0.12",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
+    "capacitor-hce-plugin": "file:../../capacitor-hce-plugin",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "ionicons": "^7.0.0",
