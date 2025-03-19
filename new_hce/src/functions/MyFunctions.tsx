@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
-import testfunc from "./TEST";
+import StartIosEmulation from "./TEST";
 import { HCECapacitorPlugin } from "capacitor-hce-plugin";
+import Echo from "@/myplugins/plugin";
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
@@ -42,6 +43,16 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
     loadPlugin();
   }, []);
 
+  // Update state when session is invalidated
+  useEffect(() => {
+    const listener = Echo.addListener("sessionInvalidated", (event) => {
+      setStarted(false);  // Reset state as needed
+    });
+  
+    return () => {
+
+    };
+  }, []);
   const change = (e: CustomEvent) => {
     const newValue = e.detail.value || "";
     setDatas(newValue);
@@ -50,10 +61,10 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
 
   const startEmulation = async () => {
     if (Capacitor.getPlatform() === "ios") {
-      // For iOS, use the testfunc (assuming it's defined in ./TEST)
       if (datasRef.current) {
         try {
-          testfunc(datasRef.current);
+          StartIosEmulation(datasRef.current);
+          setStarted(true);
         } catch (error) {
           console.error("Error starting NFC emulation on iOS:", error);
           console.log(error);
@@ -85,15 +96,10 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const stopEmulation = async () => {
-    if (Capacitor.getPlatform() !== "android") {
-      alert("NFC emulation is only supported on Android.");
-      return;
-    }
-
+    setStarted(false);
     if (HCECapacitorPlugin) {
       try {
         await HCECapacitorPlugin.stopNfcHce();
-        setStarted(false);
       } catch (error) {
         console.error("Error stopping NFC emulation:", error);
         alert("Failed to stop NFC emulation.");
@@ -129,7 +135,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         listener.remove();
       };
     }
-  }, );
+  }, []);
 
   return (
     <NfcContext.Provider

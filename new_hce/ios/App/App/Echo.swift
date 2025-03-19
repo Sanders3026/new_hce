@@ -3,10 +3,10 @@ import Capacitor
 import CoreNFC
 
 @objc(IosEmulator) 
-public class EchoBack: CAPPlugin {
+public class IosEmulator: CAPPlugin {
 
     @available(iOS 17.4, *)
-    @objc func IosEmulator(_ call: CAPPluginCall) {
+    @objc func StartEmulation(_ call: CAPPluginCall) {
         let stringData = call.getString("Data") ?? "Error Reading Data"
         let utf8Data = Data(stringData.utf8) // Ensure UTF-8 encoding
         let payloadLength = utf8Data.count + 3
@@ -140,7 +140,6 @@ public class EchoBack: CAPPlugin {
                     break
                 case .readerDeselected:
                     await cardSession.stopEmulation(status: .success)
-                    cardSession.invalidate()
                     print("Reader deselected. Stopping emulation.")
                     break
                 case .received(let cardAPDU):
@@ -155,6 +154,7 @@ public class EchoBack: CAPPlugin {
                             if isComplete {
                                 print("NDEF data transfer complete, stopping emulation.")
                                 await cardSession.stopEmulation(status: .success)
+                                
                                 cardSession.invalidate()
                             }
                         } else {
@@ -164,8 +164,12 @@ public class EchoBack: CAPPlugin {
                         print("Error responding to APDU: \(error)")
                     }
                     break
-                case .sessionInvalidated(let reason):
+                case .sessionInvalidated:
+                    self.notifyListeners("sessionInvalidated", data: ["message": "Session invalidated"])
+                            call.resolve()
+                    cardSession.invalidate()
                     print("Session invalidated.")
+                    
                     break
                 }
             }
