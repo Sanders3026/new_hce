@@ -154,7 +154,8 @@ public class IosEmulator: CAPPlugin {
                             if isComplete {
                                 print("NDEF data transfer complete, stopping emulation.")
                                 await cardSession.stopEmulation(status: .success)
-                                
+                                self.notifyListeners("sessionInvalidated", data: ["message": "Transmitted"])
+                                        call.resolve()
                                 cardSession.invalidate()
                             }
                         } else {
@@ -167,7 +168,6 @@ public class IosEmulator: CAPPlugin {
                 case .sessionInvalidated:
                     self.notifyListeners("sessionInvalidated", data: ["message": "Session invalidated"])
                             call.resolve()
-                    cardSession.invalidate()
                     print("Session invalidated.")
                     
                     break
