@@ -2,7 +2,7 @@ import React from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButton, IonItem, IonInput, IonText, IonLabel,
-  IonIcon, IonCard,IonProgressBar
+  IonIcon, IonCard, IonProgressBar
 } from '@ionic/react';
 import { radioOutline, checkmarkDoneCircleOutline, alertCircleOutline } from "ionicons/icons";
 import { BottomSheet } from "react-spring-bottom-sheet";
@@ -10,32 +10,46 @@ import "react-spring-bottom-sheet/dist/style.css";
 import { documentOutline } from 'ionicons/icons';
 import { useNfc } from '../functions/MyFunctions';
 import { Button } from "@/components/ui/button"
-import '../css/style.css'; 
-
-
+import '../css/style.css';
 
 const Home: React.FC = () => {
-const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
-
-const simulateError = () => {
-  const event = new CustomEvent('onStatusChanged', {
-    detail: { eventName: 'scan-error' }
-  });
-  document.dispatchEvent(event);
-  console.log("PRINTED")
-};
-
+  const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>HCE Demo</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent className="ion-padding" style={{ backgroundColor: 'var(--ion-background-color)' }}>
-        <IonButton expand="block" onClick={startEmulation} aria-label="Start NFC Emulation">
+        {/* NFC Tag Overlay */}
+        {started && !scanCompleted && !scanError && (
+          <div className="nfc-tag-overlay">
+            <div className="nfc-tag">
+              <div className="nfc-tag-content">
+                <IonIcon 
+                  icon={radioOutline} 
+                  color="light" 
+                  className="pulse-icon" 
+                  style={{ fontSize: '48px' }}
+                />
+                <IonText color="light">
+                  <h2 style={{ marginTop: '1rem', fontWeight: 500 }}>Tap to Scan</h2>
+                </IonText>
+                {/* Add your image here */}
+                <img 
+                  src="/path/to/your/image.png" 
+                  alt="NFC Tag" 
+                  style={{ width: '80px', height: '80px', marginTop: '1rem' }}
+                />
+              </div>
+              <div className="scan-beam"></div>
+            </div>
+          </div>
+        )}
+
+        <IonButton 
+          expand="block" 
+          onClick={startEmulation} 
+          aria-label="Start NFC Emulation"
+          style={{ marginTop: '2rem' }}
+        >
           Start Emulation
         </IonButton>
         <IonItem>
@@ -51,9 +65,9 @@ const simulateError = () => {
       </IonContent>
 
       <BottomSheet 
-    open={started} 
-    onDismiss={stopEmulation}
-  >
+        open={started} 
+        onDismiss={stopEmulation}
+      >
     <div className="ion-padding-horizontal" style={{ paddingBottom: '2rem' }}>
       <div className="ion-text-center" style={{ margin: '1.5rem 0' }}>
         <IonIcon
@@ -166,15 +180,6 @@ const simulateError = () => {
           </IonItem>
         </IonCard>
       )}
-
-      {/* Test Error Button */}
-      <Button 
-        onClick={simulateError} 
-        variant="destructive" 
-        className='my-custom-button mb-4'
-      >
-        Simulate Error
-      </Button>
 
       {/* stop session button */}
       <Button onClick={stopEmulation} variant={"outline"} className='my-custom-button outline'>Stop Session</Button>
