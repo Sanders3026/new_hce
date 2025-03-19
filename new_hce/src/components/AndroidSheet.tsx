@@ -28,9 +28,8 @@ let isAndroid = false;
 if (Capacitor.getPlatform() === "android"){
   isAndroid = true;
 }
-interface ContainerProps { }
 
-const Modal: React.FC<ContainerProps> = () => {
+const Modal: React.FC = () => {
   return(
     <IonPage>
     {isAndroid && (

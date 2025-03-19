@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import StartIosEmulation from "./IosEmulation";
-//@ts-ignore
 import { HCECapacitorPlugin } from "capacitor-hce-plugin";
 import Echo from "@/myplugins/IosPlugin";
 interface NfcContextType {
@@ -23,25 +22,13 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const datasRef = useRef<string>("");
   const [scanCompleted, setScanCompleted] = useState(false);
   const [scanError, setScanError] = useState(false);
-  const [pluginLoaded, setPluginLoaded] = useState(false);
 
-  useEffect(() => {
-    if (Capacitor.getPlatform() === "ios") {
-      console.warn("NFC emulation is only supported on Android.");
-      return;
-    }
+ 
 
-    const loadPlugin = async () => {
-      try {
-        setPluginLoaded(true);
-      } catch (error) {
-        console.error("Failed to load NFC plugin:", error);
-      }
-    };
-
-    loadPlugin();
-  }, []);
-
+ 
+  if (Capacitor.getPlatform()==="ios") {
+    
+  
   useEffect(() => {
     const listener = Echo.addListener("sessionInvalidated", (event) => {
       setStarted(false);  
@@ -52,6 +39,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
 
     };
   }, []);
+}
   const change = (e: CustomEvent) => {
     const newValue = e.detail.value || "";
     setDatas(newValue);
