@@ -1,4 +1,4 @@
-import Echo from "@/myplugins/plugin";
+import Echo from "@/myplugins/IosPlugin";
 
 
 const StartIosEmulation = (value:string)=> {

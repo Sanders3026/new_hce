@@ -16,7 +16,6 @@ import { Capacitor } from '@capacitor/core';
 const Home: React.FC = () => {
   const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
 
-  // Platform check to conditionally render BottomSheet on Android only
   let isAndroid = false;
   if (Capacitor.getPlatform() === "android"){
     isAndroid = true;
