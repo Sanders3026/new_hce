@@ -103,14 +103,12 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
         if (status.eventName === "card-emulator-started") {
           setStarted(true);
         }
-        if (status.eventName === "card-emulator-stopped") {
-          setTimeout(() => {
-            setStarted(false);
-          }, 2900);
-        }
         if (status.eventName === "scan-completed") {
           setScanCompleted(true);
           setTimeout(() => setScanCompleted(false), 3000);
+          setTimeout(() => {
+            setStarted(false);
+          }, 2900);
         }
         if (status.eventName === "scan-error") {
           setScanError(true);
