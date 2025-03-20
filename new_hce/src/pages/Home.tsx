@@ -12,6 +12,7 @@ import { useNfc } from '../functions/MyFunctions';
 import { Button } from "@/components/ui/button"
 import '../css/style.css';
 import { Capacitor } from '@capacitor/core'; 
+import Modal from '@/components/AndroidSheet';
 
 const Home: React.FC = () => {
   const { datas, startEmulation, stopEmulation, change, started, scanCompleted, scanError } = useNfc();
@@ -58,10 +59,11 @@ const Home: React.FC = () => {
 
       {/* Conditionally Render BottomSheet on Android only */}
       {isAndroid && (
-        <BottomSheet 
-          open={started} 
-          onDismiss={stopEmulation}
-        >
+      <BottomSheet 
+      open={started} 
+      onDismiss={stopEmulation} 
+      blocking={false} 
+    >
           <div className="ion-padding-horizontal" style={{ paddingBottom: '2rem' }}>
             <div className="ion-text-center" style={{ margin: '1.5rem 0' }}>
               <IonIcon
@@ -102,78 +104,10 @@ const Home: React.FC = () => {
                 </p>
               </IonText>
             </div>
-
-            {/* Progress Indicator */}
-            {started && !scanCompleted && !scanError && (
-              <div style={{ 
-                margin: '1.5rem 0',
-                padding: '0 1rem'
-              }}>
-                <IonProgressBar 
-                  type="indeterminate" 
-                  color="primary"
-                  style={{
-                    height: '4px',
-                    borderRadius: '2px'
-                  }}
-                />
-              </div>
-            )}
-
-            {scanCompleted && (
-              <IonCard 
-                style={{ 
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                  margin: '1.5rem 0'
-                }}
-              >
-                <IonItem lines="none" style={{ '--background': 'var(--ion-color-light)' }}>
-                  <IonLabel className="ion-text-wrap">
-                    <IonText color="medium">
-                      <h3 style={{ 
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                        marginBottom: '0.5rem'
-                      }}>
-                        Transmitted Payload
-                      </h3>
-                    </IonText>
-                    <div 
-                      style={{ 
-                        backgroundColor: 'var(--ion-color-light-shade)',
-                        borderRadius: '8px',
-                        padding: '1rem',
-                        wordBreak: 'break-all',
-                        fontSize: '0.85rem',
-                        lineHeight: '1.4',
-                        position: 'relative'
-                      }}
-                    >
-                      {datas || 'No data recorded'}
-                      <IonButton 
-                        fill="clear"
-                        size="small"
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '8px',
-                          '--padding-start': '4px',
-                          '--padding-end': '4px'
-                        }}
-                        onClick={() => navigator.clipboard.writeText(datas)}
-                      >
-                        <IonIcon 
-                          icon={documentOutline} 
-                          color="medium" 
-                          style={{ fontSize: '18px' }}
-                        />
-                      </IonButton>
-                    </div>
-                  </IonLabel>
-                </IonItem>
-              </IonCard>
-            )}
+            
+            <Modal></Modal>
+          
+           
 
             {/* stop session button */}
             <Button onClick={stopEmulation} variant={"outline"} className='my-custom-button outline'>Stop Session</Button>

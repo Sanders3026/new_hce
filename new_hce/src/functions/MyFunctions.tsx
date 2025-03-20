@@ -27,17 +27,13 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
 
  
 
-<<<<<<< HEAD
  
   if (Capacitor.getPlatform()==="ios") {
     
-  
-=======
-  // Update state when session is invalidated
->>>>>>> parent of bf5d45a (file update, uz ios nestrada)
   useEffect(() => {
     const listener = Echo.addListener("sessionInvalidated", (event) => {
-      setStarted(false);  // Reset state as needed
+      setStarted(false);  
+      
     });
   
     return () => {

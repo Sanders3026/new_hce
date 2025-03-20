@@ -22,14 +22,15 @@ import { BottomSheet } from "react-spring-bottom-sheet";
 import { Capacitor } from "@capacitor/core";
 import { useNfc } from "@/functions/MyFunctions";
 import { radioOutline, checkmarkDoneCircleOutline, alertCircleOutline } from "ionicons/icons";
-const { stopEmulation, started, scanCompleted, scanError } = useNfc();
 
+
+
+const Modal: React.FC = () => {
+const { stopEmulation, started, scanCompleted, scanError } = useNfc();
 let isAndroid = false;
 if (Capacitor.getPlatform() === "android"){
   isAndroid = true;
 }
-
-const Modal: React.FC = () => {
   return(
     <IonPage>
     {isAndroid && (
@@ -81,7 +82,16 @@ const Modal: React.FC = () => {
             
 
             {/* stop session button */}
-            <Button onClick={stopEmulation} variant={"outline"} className='my-custom-button outline'>Stop Session</Button>
+            <Button
+  onClick={() => {
+    console.log("Button clicked");
+    stopEmulation();
+  }}
+  variant="outline"
+  className="my-custom-button outline"
+>
+  Stop Session
+</Button>
          
           </div>
         </BottomSheet>

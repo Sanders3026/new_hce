@@ -5,11 +5,13 @@
   border-radius: 8px;
   border: 2px solid transparent; /* default border for non-outline */
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background-color: transparent; /* outline variant has transparent background */
   color: var(--ion-color-primary); /* Color for the text */
   text-transform: uppercase;
   width: 100%;
+  pointer-events: auto !important;
+  z-index: 9999;
 }
 
 .my-custom-button.outline {
@@ -29,10 +31,7 @@
   border-color: var(--ion-color-primary-shade);
 }
 
-.my-custom-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+
 .nfc-tag-overlay {
   position: fixed;
   top: 0;
@@ -51,8 +50,8 @@
 .nfc-tag {
   width: 200px;
   height: 200px;
-  background: linear-gradient(145deg, #1e3a8a, #3b82f6); 
-  border-radius: 50%; /* Make it round */
+  background: linear-gradient(145deg, #1e3a8a, #3b82f6);
+  border-radius: 50%; 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -99,6 +98,6 @@
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-100%); } /* Slide from top */
-  to { transform: translateY(0); } /* Slide to original position */
+  from { transform: translateY(-100%); } 
+  to { transform: translateY(0); } 
 }
