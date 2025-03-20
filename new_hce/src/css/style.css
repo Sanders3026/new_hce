@@ -9,7 +9,7 @@
   align-items: flex-start; 
   justify-content: center;
   z-index: 999;
-  padding-top: 2rem;
+  padding-top: 4rem;
   transform-origin: top center;
   animation: slideDown 0.5s ease forwards;
 }
@@ -22,6 +22,7 @@
 
 
 .nfc-tag {
+
   width: 200px;
   height: 200px;
   background-color: white;
