@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import StartIosEmulation from "./IosEmulation";
-const HCECapacitorPlugin = Capacitor.getPlatform() === "android" ? require("capacitor-hce-plugin").HCECapacitorPlugin : null;
 import Echo from "@/myplugins/IosPlugin";
+import { HCECapacitorPlugin } from "capacitor-hce-plugin/dist/esm";
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
@@ -14,6 +14,7 @@ interface NfcContextType {
   startEmulation: () => Promise<void>;
   stopEmulation: () => Promise<void>;
 }
+
 
 const NfcContext = createContext<NfcContextType | undefined>(undefined);
 
