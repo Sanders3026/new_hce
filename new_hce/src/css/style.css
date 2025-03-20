@@ -44,19 +44,15 @@
   align-items: flex-start; 
   justify-content: center;
   z-index: 999;
-  padding-top: 2rem;
   animation: slideDown 0.5s ease forwards; 
-}
-
-.nfc-tag-overlay.closing {
-  animation: slideUp 0.5s ease forwards;
+  padding-top: 2rem; 
 }
 
 .nfc-tag {
   width: 200px;
   height: 200px;
   background: linear-gradient(145deg, #1e3a8a, #3b82f6); 
-  border-radius: 50%;
+  border-radius: 50%; /* Make it round */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -103,11 +99,6 @@
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(-100%); opacity: 0; }
+  from { transform: translateY(-100%); } /* Slide from top */
+  to { transform: translateY(0); } /* Slide to original position */
 }

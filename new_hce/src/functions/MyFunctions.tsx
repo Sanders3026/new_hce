@@ -6,6 +6,7 @@ import Echo from "@/myplugins/IosPlugin";
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
+  showToast: boolean;
   started: boolean;
   scanCompleted: boolean;
   scanError: boolean;
@@ -17,6 +18,7 @@ interface NfcContextType {
 const NfcContext = createContext<NfcContextType | undefined>(undefined);
 
 export const NfcProvider = ({ children }: { children: ReactNode }) => {
+  const [showToast, setShowToast] = useState(false);
   const [datas, setDatas] = useState<string>("");
   const [started, setStarted] = useState(false);
   const datasRef = useRef<string>("");
@@ -25,16 +27,19 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
 
  
 
+<<<<<<< HEAD
  
   if (Capacitor.getPlatform()==="ios") {
     
   
+=======
+  // Update state when session is invalidated
+>>>>>>> parent of bf5d45a (file update, uz ios nestrada)
   useEffect(() => {
     const listener = Echo.addListener("sessionInvalidated", (event) => {
-      setStarted(false);  
-      
+      setStarted(false);  // Reset state as needed
     });
-    
+  
     return () => {
 
     };
@@ -129,6 +134,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
       value={{
         datas,
         setDatas,
+        showToast,
         started,
         scanCompleted,
         scanError,
