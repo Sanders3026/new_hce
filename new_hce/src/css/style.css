@@ -1,5 +1,3 @@
-
-
 .nfc-tag-overlay {
   position: fixed;
   top: 0;
@@ -21,14 +19,7 @@
   to   { transform: translateY(0); }
 }
 
-@keyframes slideUp {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-100%); }
-}
 
-.nfc-tag-overlay.slide-up {
-  animation: slideUp 0.5s ease forwards;
-}
 
 .nfc-tag {
   width: 200px;

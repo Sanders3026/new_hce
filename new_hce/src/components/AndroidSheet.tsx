@@ -19,7 +19,7 @@ const Modal: React.FC = () => {
       isOpen={isAndroid && started}
       onDidDismiss={stopEmulation}
       className="bottom-sheet-modal"
-      backdropDismiss={false}
+      backdropDismiss={true}
     >
       <div className="modal-content">
         <div className="icon-container">
