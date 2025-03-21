@@ -21,5 +21,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
   },
+  build: {
+    rollupOptions: {
+      external: ['capacitor-hce-plugin'], // Add the plugin here
+    },
+  },
   
 })
