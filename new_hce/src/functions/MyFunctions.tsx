@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { Capacitor } from "@capacitor/core";
 import StartIosEmulation from "./IosEmulation";
 import Echo from "@/myplugins/IosPlugin";
-
+import {HCECapacitorPlugin} from "capacitor-hce-plugin";
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
@@ -15,6 +15,7 @@ interface NfcContextType {
   stopEmulation: () => Promise<void>;
 }
 
+
 const NfcContext = createContext<NfcContextType | undefined>(undefined);
 
 export const NfcProvider = ({ children }: { children: ReactNode }) => {
@@ -24,31 +25,23 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   const datasRef = useRef<string>("");
   const [scanCompleted, setScanCompleted] = useState(false);
   const [scanError, setScanError] = useState(false);
-  const hcePluginRef = useRef<any>(null); // Ref to store HCE plugin dynamically
 
-  // Load HCE plugin dynamically for Android
+ 
+
+ 
+  if (Capacitor.getPlatform()==="ios") {
+    
   useEffect(() => {
-    if (Capacitor.getPlatform() === "android") {
-      import("capacitor-hce-plugin")
-        .then((module) => {
-          hcePluginRef.current = module.HCECapacitorPlugin;
-        })
-        .catch((error) => console.error("Failed to load HCE plugin:", error));
-    }
+    const listener = Echo.addListener("sessionInvalidated", (event) => {
+      setStarted(false);  
+      
+    });
+  
+    return () => {
+
+    };
   }, []);
-
-  useEffect(() => {
-    if (Capacitor.getPlatform() === "ios") {
-      const listener = Echo.addListener("sessionInvalidated", () => {
-        setStarted(false);
-      });
-
-      return () => {
-        
-      };
-    }
-  }, []);
-
+}
   const change = (e: CustomEvent) => {
     const newValue = e.detail.value || "";
     setDatas(newValue);
@@ -63,15 +56,17 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
           setStarted(true);
         } catch (error) {
           console.error("Error starting NFC emulation on iOS:", error);
+          console.log(error);
           alert(`Failed to start NFC emulation on iOS: ${error}`);
         }
       } else {
         alert("Please enter data to emulate.");
       }
     } else if (Capacitor.getPlatform() === "android") {
-      if (hcePluginRef.current && datasRef.current) {
+      // For Android, use the startNfcHce
+      if (datasRef.current) {
         try {
-          await hcePluginRef.current.startNfcHce({
+          await HCECapacitorPlugin.startNfcHce({
             content: datasRef.current,
             persistMessage: false,
             mimeType: "text/plain",
@@ -91,9 +86,9 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
 
   const stopEmulation = async () => {
     setStarted(false);
-    if (hcePluginRef.current) {
+    if (HCECapacitorPlugin) {
       try {
-        await hcePluginRef.current.stopNfcHce();
+        await HCECapacitorPlugin.stopNfcHce();
       } catch (error) {
         console.error("Error stopping NFC emulation:", error);
         alert("Failed to stop NFC emulation.");
@@ -102,8 +97,8 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (Capacitor.getPlatform() === "android" && hcePluginRef.current) {
-      const listener = hcePluginRef.current.addListener("onStatusChanged", (status: any) => {
+    if (Capacitor.getPlatform() === "android") {
+      const listener = HCECapacitorPlugin.addListener("onStatusChanged", (status: any) => {
         console.log("NFC Status:", status.eventName);
 
         if (status.eventName === "card-emulator-started") {

@@ -6,10 +6,7 @@ const config: CapacitorConfig = {
   appName: 'new_hce',
   webDir: 'dist',
   plugins: {
-    "capacitor-hce-plugin": {
-      android: true,
-      ios:false
-    }
+    "capacitor-hce-plugin": Capacitor.getPlatform() === "ios" ? {} : undefined
   }
 };
 
