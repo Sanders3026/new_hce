@@ -2,7 +2,11 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { Capacitor } from "@capacitor/core";
 import StartIosEmulation from "./IosEmulation";
 import Echo from "@/myplugins/IosPlugin";
-import {HCECapacitorPlugin} from "capacitor-hce-plugin"
+let HCECapacitorPlugin: any;
+
+if (Capacitor.getPlatform() === "android") {
+  HCECapacitorPlugin = require("capacitor-hce-plugin");
+}
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
