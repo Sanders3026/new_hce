@@ -1,12 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { Capacitor } from "@capacitor/core";
 import StartIosEmulation from "./IosEmulation";
-import Echo from "@/myplugins/IosPlugin";
-let HCECapacitorPlugin: any;
-
-if (Capacitor.getPlatform() === "android") {
-  HCECapacitorPlugin = require("capacitor-hce-plugin");
-}
+import { HCECapacitorPlugin } from "capacitor-hce-plugin/dist/esm";
 interface NfcContextType {
   datas: string;
   setDatas: (value: string) => void;
@@ -36,7 +31,7 @@ export const NfcProvider = ({ children }: { children: ReactNode }) => {
   if (Capacitor.getPlatform()==="ios") {
     
   useEffect(() => {
-    const listener = Echo.addListener("sessionInvalidated", (event) => {
+    const listener = HCECapacitorPlugin.addListener("sessionInvalidated", (event) => {
       setStarted(false);  
       
     });

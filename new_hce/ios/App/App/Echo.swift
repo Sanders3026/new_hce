@@ -2,7 +2,7 @@ import Foundation
 import Capacitor
 import CoreNFC
 
-@objc(IosEmulator) 
+@objc(HCECapacitorPlugin) 
 public class IosEmulator: CAPPlugin {
 
     @available(iOS 17.4, *)

@@ -1,8 +1,7 @@
-import Echo from "@/myplugins/IosPlugin";
-
+import { HCECapacitorPlugin } from "capacitor-hce-plugin/dist/esm";
 
 const StartIosEmulation = (value:string)=> {
-    Echo.StartEmulation({Data:value});
+    HCECapacitorPlugin.StartEmulation({Data:value});
 }
 
 export default StartIosEmulation;
