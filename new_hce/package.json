@@ -14,7 +14,7 @@
     "build:ios": "VITE_PLATFORM=ios vite build"
   },
   "dependencies": {
-    "@capacitor/android": "7.0.1",
+    "@capacitor/android": "7.1.0",
     "@capacitor/app": "7.0.0",
     "@capacitor/core": "7.0.1",
     "@capacitor/haptics": "7.0.0",
